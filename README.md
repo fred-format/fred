@@ -4,19 +4,87 @@ Specification of the Fred (Flexible REpresentation of Data) format
 
 ## What is Fred?
 
+FRED (Flexible REpresentation of Data) is a data-interchange format. It was created with the goal to be easy for humans to read and write but also easy to create parsers.
+
+It has more data types than JSON and some features like support for metadata and tags.
+
 ## How does it look like?
 
-* Commas are whitespace
+### Tags
+
+```fred
+tag [1 2 3]
+```
+
+```fred
+(tag attr=1)
+```
+### Metadata
+
+```fred
+phone (country=55) "32131123"
+```
+
+```fred
+blog (page=1) [{ title: "LOREM IPSUM" }]
+```
+
+### DateTime
+
+```fred
+birth-date 1989-10-14
+```
+
+```fred
+birth-hour 14:35:54.83
+```
+
+```fred
+birth-datetime 1989-10-14T14:35:54.83
+```
+
+### Blob
+
+```fred
+b64data #"dffdtr54123asda1yhn7"
+```
+
+### Symbols
+
+```fred
+variables [
+  $var1
+  $foo
+  $bar
+]
+```
+
+### Numbers
+
+```fred
+numbers [ 42 123.886 1.54-e10 1_000_000 0xBEEF_00E9 0o7823 0b1010 ]
+```
+
+### Commas are whitespace
 
 ```fred
 my-app.users.name (attr="string" attr2=42 ) {
-  foo: "dfofpodk"
-  "dijfiodjfo"
-  "idjfigdfg" 
+  foo: "bar",
+  bar: "foo",
 }
 ```
 
-## Fred vs. Json
+### Streaming
+
+```fred
+---
+person "Jhon"
+---
+person "Mary"
+---
+```
+
+## Fred vs. JSON
 
 ## Fred vs. XML
 
@@ -34,57 +102,94 @@ my-app.users.name (attr="string" attr2=42 ) {
 
 ### HTML
 
-```
+```fred
 div [
     h1 "Hello world!"
     p "hi there"
 ]
-(br class="fdofod")
 ```
-
-
-## Schema
-
 
 ## Grammar
 
 ```
-document : "Stream" value*
+document : stream
          | value
+
+stream : "---" (value  "---")*
 
 value : tagged
       | atom
 
+tagged : name [attrs] atom
+       | "(" name attr* ")" 
+
+attrs : "(" meta_item* ")"
+
+attr : name "=" atom
+
 atom : object
      | array
-     | DATE? Date "50-12-32"
-     | URI?  uri "http://github.com"
-     | Symbols? `foo `bar? Symb "dfjdofgjfd"
-     | Hash? #md5 `dfdiogjdofig`
-     | BINARY? "" '' ``
-     | STRING
-     | NUMBER int/float
-     | 0xFF, 0o123, 0b1010101 ??
-     | "true"
-     | "false"
+     | dateTime
+     | symbol
+     | number
+     | string
+     | bool
      | "null"
 
-tagged : tag [meta] atom
-       | "(" tag meta_item* ")" 
-
-meta : "(" meta_item* ")"
-
-meta_item : name "=" atom -> pair
-          | name          -> boolean_value
-
-array : "[" (atom [","])* "]"
-
-object : "{" (pair [","])* "}"
+object : "{" pair* "}"
 
 pair : name ":" value
 
+array : "[" atom* "]"
+
+bool : "true" | "false"
+
+symbol : "$" name
+
+number : NUMBER_LITERAL 
+       | HEX_LITERAL
+       | OCT_LITERAL
+       | BIN_LITERAL 
+
+dateTime : date
+       | TIME_FORMAT
+
+date : DATE_FORMAT [ ("_" | "T") TIME_FORMAT TIME_OFFSET]
+
+string : STRING_LITERAL
+       | blob
+
+blob : "#" BLOB_LITERAL
+
 name : VARIABLE
      | QUOTED_VARIABLE
-WHITESPACE : /[\s,]/
+
+VARIABLE : /[^#\"`$:;{}\[\]=\(\)\t\r\n ,0-9]{1}[^#\"`$:;{}\[\]=\(\)\t\r\n ,]*/
+
+QUOTED_VARIABLE : /`(?:[^\\`]|\\(?:[bfnrtv`\\/]|x[0-9a-fA-F]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]))*`/
+
+STRING_LITERAL : /"(?:[^\\"]|\\(?:[bfnrtv"\\/]|x[0-9a-fA-F]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]))*"/
+
+BLOB_LITERAL : /"(?:[^\\"\u\U]|\\(?:[bfnrtv"\\/]|x[0-9a-fA-F]))*"/
+
+NUMBER_LITERAL : /-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?/
+
+HEX_LITERAL : /0x[0-9a-fA-F]{1}([0-9a-fA-F]{1}|_[0-9a-fA-F]{1})*/
+
+OCT_LITERAL : /0o[0-8]{1}([0-8]{1}|_[0-8]{1})*/
+
+BIN_LITERAL : /0b[01]{1}([01]{1}|_[01]{1})*/
+
+DATE_FORMAT : /\d{4}-\d{2}-\d{2}/
+
+TIME_FORMAT : /\d{2}:\d{2}:\d{2}(\.\d+)?/
+
+TIME_OFFSET : /Z|[+-]\d{2}:\d{2}/
+
+/* SKIPPED */
+
+WHITESPACE : /[ \t\n\r,]+/
+
+COMMENT : /;.*/
 
 ```
