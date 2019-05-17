@@ -10,6 +10,118 @@ It has more data types than JSON and some features like support for metadata and
 
 ## How does it look like?
 
+### String
+
+The only way to represent a string is with quotation marks. 
+
+```fred
+"String that is valid. \"quote\" are allowed. Unicode \uOOE9 and other escape\n\t"
+```
+
+It accepts any unicode character except those that need to be escaped.
+
+```
+\b         
+\t        
+\n        
+\f         
+\r         
+\"         
+\\         
+\xXX
+\uXXXX     
+\UXXXXXXXX
+```
+
+### Number
+
+Number representation can be both Integer or Float numbers.
+
+#### Integer
+
+
+```fred
+[ 
+  42 
+  -42 
+  1_000_000 
+  0xBEEF_00E9 
+  0o7823 
+  0b1010 
+]
+```
+
+#### Float
+
+```fred
+[ 
+  42.12 
+  -42.12 
+  4.32e-10 
+  -2E-2 
+]
+```
+
+### Bool
+
+Booleans are always lowercase.
+
+```fred
+true
+false
+```
+
+### DateTime
+
+Date can be representended with only the date portion of an RFC 3339 formatted date-time.
+This has no timezone or offset associated.
+```fred
+1989-10-14
+```
+
+Time can be representended with only the time portion of an RFC 3339 formatted date-time without timezone.
+This has no timezone or offset associated.
+```fred
+14:35:54.83
+```
+
+DateTime can be represented without timezone
+```fred
+1989-10-14T14:35:54.83
+```
+
+DateTime can have the '_' as the separator to improve readability.
+```fred
+1989-10-14_14:35:54.83
+```
+
+
+DateTime can be represented with timeoffset or 'Z' as UTC
+```fred
+1989-10-14T14:35:54.83Z
+```
+
+```fred
+1989-10-14T14:35:54.83-03:00
+```
+
+### Blob
+
+It can represents raw binary data. It starts with the '#' character followed by a blob string
+representing the binary data.
+
+```fred
+#"dffdtr54123asda1yhn7"
+```
+
+### Symbols
+
+Also represent symbols with the '$' character.
+
+```fred
+$var1
+```
+
 ### Tags
 
 ```fred
@@ -29,41 +141,6 @@ phone (country=55) "32131123"
 blog (page=1) [{ title: "LOREM IPSUM" }]
 ```
 
-### DateTime
-
-```fred
-birth-date 1989-10-14
-```
-
-```fred
-birth-hour 14:35:54.83
-```
-
-```fred
-birth-datetime 1989-10-14T14:35:54.83
-```
-
-### Blob
-
-```fred
-b64data #"dffdtr54123asda1yhn7"
-```
-
-### Symbols
-
-```fred
-variables [
-  $var1
-  $foo
-  $bar
-]
-```
-
-### Numbers
-
-```fred
-numbers [ 42 123.886 1.54-e10 1_000_000 0xBEEF_00E9 0o7823 0b1010 ]
-```
 
 ### Commas are whitespace
 
@@ -85,6 +162,8 @@ person "Mary"
 ```
 
 ## Fred vs. JSON
+
+
 
 ## Fred vs. XML
 
