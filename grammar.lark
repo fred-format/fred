@@ -1,0 +1,77 @@
+document : stream
+         | value
+
+stream : "---" (value  "---")*
+
+value : tagged
+      | atom
+
+tagged : name [attrs] atom
+       | "(" name attr* ")" 
+
+attrs : "(" meta_item* ")"
+
+attr : name "=" atom
+
+atom : object
+     | array
+     | date_time
+     | symbol
+     | number
+     | string
+     | bool
+     | "null"
+
+object : "{" pair* "}"
+
+pair : name ":" value
+
+array : "[" atom* "]"
+
+bool : "true" | "false"
+
+symbol : "$" name
+
+number : NUMBER_LITERAL 
+       | HEX_LITERAL
+       | OCT_LITERAL
+       | BIN_LITERAL 
+
+date_time : date
+       | TIME_FORMAT
+
+date : DATE_FORMAT [ ("_" | "T") TIME_FORMAT TIME_OFFSET]
+
+string : STRING_LITERAL
+       | blob
+
+blob : "#" BLOB_LITERAL
+
+name : VARIABLE
+     | QUOTED_VARIABLE
+
+VARIABLE : /[^#\"`$:;{}\[\]=\(\)\t\r\n ,0-9]{1}[^#\"`$:;{}\[\]=\(\)\t\r\n ,]*/
+
+QUOTED_VARIABLE : /`(?:[^\\`]|\\(?:[bfnrtv`\\/]|x[0-9a-fA-F]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]))*`/
+
+STRING_LITERAL : /"(?:[^\\"]|\\(?:[bfnrtv"\\/]|x[0-9a-fA-F]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]))*"/
+
+BLOB_LITERAL : /"(?:[^\\"\u\U]|\\(?:[bfnrtv"\\/]|x[0-9a-fA-F]))*"/
+
+NUMBER_LITERAL : /-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?/
+
+HEX_LITERAL : /0x[0-9a-fA-F]{1}([0-9a-fA-F]{1}|_[0-9a-fA-F]{1})*/
+
+OCT_LITERAL : /0o[0-8]{1}([0-8]{1}|_[0-8]{1})*/
+
+BIN_LITERAL : /0b[01]{1}([01]{1}|_[01]{1})*/
+
+DATE_FORMAT : /\d{4}-\d{2}-\d{2}/
+
+TIME_FORMAT : /\d{2}:\d{2}:\d{2}(\.\d+)?/
+
+TIME_OFFSET : /Z|[+-]\d{2}:\d{2}/
+
+WHITESPACE : /[ \t\n\r,]+/
+
+COMMENT : /;.*/

@@ -1,14 +1,31 @@
-# Flexible REpresentation of Data (Fred)
+# Flexible REpresentation of Data (FRED)
 
-Specification of the Fred (Flexible REpresentation of Data) format
+Specification of the FRED (Flexible REpresentation of Data) format
 
-## What is Fred?
+## What is FRED?
 
 FRED (Flexible REpresentation of Data) is a data-interchange format. It was created with the goal to be easy for humans to read and write but also easy to create parsers.
 
 It has more data types than JSON and some features like support for metadata and tags.
 
 ## How does it look like?
+
+### null value
+
+null values are represented as expected.
+
+```fred
+null
+```
+
+### Boolean
+
+Booleans are always lowercase.
+
+```fred
+true
+false
+```
 
 ### String
 
@@ -62,15 +79,6 @@ Number representation can be both Integer or Float numbers.
 ]
 ```
 
-### Bool
-
-Booleans are always lowercase.
-
-```fred
-true
-false
-```
-
 ### DateTime
 
 Date can be representended with only the date portion of an RFC 3339 formatted date-time.
@@ -94,7 +102,6 @@ DateTime can have the '_' as the separator to improve readability.
 ```fred
 1989-10-14_14:35:54.83
 ```
-
 
 DateTime can be represented with timeoffset or 'Z' as UTC
 ```fred
@@ -122,27 +129,67 @@ Also represent symbols with the '$' character.
 $var1
 ```
 
+### Array
+
+Array expect at least one whitespace to separate the values. Commas are also whitespace.
+
+```fred
+[1 2 3]
+```
+
+```fred
+[1,2,3]
+```
+
+### Object or Dictionary
+
+The key can be represented without quotation marks, but also as a literal string with the backtick.
+
+The separator between values is  at least one whitespace, Commas are also whitespace.
+
+```fred
+{
+  foo : "bar"
+  `test foo` : "bar"
+}
+```
+
 ### Tags
 
+A tag in FRED indicates some semantic meaning to the following element.
+
 ```fred
-tag [1 2 3]
+person {
+  name: "eric"
+  age: 25
+}
 ```
 
 ```fred
-(tag attr=1)
+fibonacci [0 1 1 2 3 5 8 13]
 ```
+
 ### Metadata
 
+With tagged elements it is also possible to add metadata abot the following element.
+
 ```fred
-phone (country=55) "32131123"
+phone (country="Brazil") "32131123"
 ```
 
 ```fred
 blog (page=1) [{ title: "LOREM IPSUM" }]
 ```
 
+It is also possible to represent a tag and meta data without a following element with the notation
+
+```fred
+(tag attr=1)
+```
 
 ### Commas are whitespace
+
+In FRED commas are treated as whitespace.
 
 ```fred
 my-app.users.name (attr="string" attr2=42 ) {
@@ -153,21 +200,23 @@ my-app.users.name (attr="string" attr2=42 ) {
 
 ### Streaming
 
+FRED has support for streaming.
+
 ```fred
 ---
 person "Jhon"
 ---
 person "Mary"
 ---
+person "James"
+---
 ```
 
-## Fred vs. JSON
+## FRED vs. JSON
 
+## FRED vs. XML
 
-
-## Fred vs. XML
-
-## Fred vs. other formats
+## FRED vs. other formats
 
 * Edn https://github.com/edn-format/edn
 * TJSON
@@ -177,98 +226,7 @@ person "Mary"
 * Ion https://amzn.github.io/ion-docs/
 * ...?
 
-## Fred encodings
-
-### HTML
-
-```fred
-div [
-    h1 "Hello world!"
-    p "hi there"
-]
-```
-
 ## Grammar
 
-```
-document : stream
-         | value
-
-stream : "---" (value  "---")*
-
-value : tagged
-      | atom
-
-tagged : name [attrs] atom
-       | "(" name attr* ")" 
-
-attrs : "(" meta_item* ")"
-
-attr : name "=" atom
-
-atom : object
-     | array
-     | dateTime
-     | symbol
-     | number
-     | string
-     | bool
-     | "null"
-
-object : "{" pair* "}"
-
-pair : name ":" value
-
-array : "[" atom* "]"
-
-bool : "true" | "false"
-
-symbol : "$" name
-
-number : NUMBER_LITERAL 
-       | HEX_LITERAL
-       | OCT_LITERAL
-       | BIN_LITERAL 
-
-dateTime : date
-       | TIME_FORMAT
-
-date : DATE_FORMAT [ ("_" | "T") TIME_FORMAT TIME_OFFSET]
-
-string : STRING_LITERAL
-       | blob
-
-blob : "#" BLOB_LITERAL
-
-name : VARIABLE
-     | QUOTED_VARIABLE
-
-VARIABLE : /[^#\"`$:;{}\[\]=\(\)\t\r\n ,0-9]{1}[^#\"`$:;{}\[\]=\(\)\t\r\n ,]*/
-
-QUOTED_VARIABLE : /`(?:[^\\`]|\\(?:[bfnrtv`\\/]|x[0-9a-fA-F]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]))*`/
-
-STRING_LITERAL : /"(?:[^\\"]|\\(?:[bfnrtv"\\/]|x[0-9a-fA-F]|u[0-9a-fA-F]{4}|U[0-9a-fA-F]))*"/
-
-BLOB_LITERAL : /"(?:[^\\"\u\U]|\\(?:[bfnrtv"\\/]|x[0-9a-fA-F]))*"/
-
-NUMBER_LITERAL : /-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?/
-
-HEX_LITERAL : /0x[0-9a-fA-F]{1}([0-9a-fA-F]{1}|_[0-9a-fA-F]{1})*/
-
-OCT_LITERAL : /0o[0-8]{1}([0-8]{1}|_[0-8]{1})*/
-
-BIN_LITERAL : /0b[01]{1}([01]{1}|_[01]{1})*/
-
-DATE_FORMAT : /\d{4}-\d{2}-\d{2}/
-
-TIME_FORMAT : /\d{2}:\d{2}:\d{2}(\.\d+)?/
-
-TIME_OFFSET : /Z|[+-]\d{2}:\d{2}/
-
-/* SKIPPED */
-
-WHITESPACE : /[ \t\n\r,]+/
-
-COMMENT : /;.*/
-
-```
+The grammar for FRED is defined in a [grammar file](https://github.com/fred-format/fred/blob/master/grammar.lark) which is a lark file and follows the
+notation specified [here](https://lark-parser.readthedocs.io/en/latest/grammar/).
