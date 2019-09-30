@@ -114,11 +114,10 @@ DateTime can be represented with timeoffset or 'Z' as UTC
 
 ### Blob
 
-It can represents raw binary data. It starts with the '#' character followed by a blob string
-representing the binary data.
+It can represents raw binary date with backticks
 
 ```fred
-#"dffdtr54123asda1yhn7"
+`dffdtr54123asda1yhn7`
 ```
 
 ### Symbols
@@ -143,14 +142,14 @@ Array expect at least one whitespace to separate the values. Commas are also whi
 
 ### Object or Dictionary
 
-The key can be represented without quotation marks, but also as a literal string with the backtick.
+The key can be represented without quotation marks, but also as a literal string with double quotes.
 
 The separator between values is  at least one whitespace, Commas are also whitespace.
 
 ```fred
 {
   foo : "bar"
-  `test foo` : "bar"
+  "test foo" : "bar"
 }
 ```
 
@@ -203,28 +202,21 @@ my-app.users.name (attr="string" attr2=42 ) {
 FRED has support for streaming.
 
 ```fred
----
-person "Jhon"
----
-person "Mary"
----
-person "James"
----
+#. person "Jhon"
+#. person "Mary"
+#. person "James"
 ```
 
 ## FRED vs. JSON
 
+FRED extends the JSON data model allowing more complex types. It also has an explicit mechanism for
+extension of the data model (tags).
+
 ## FRED vs. XML
 
-## FRED vs. other formats
-
-* Edn https://github.com/edn-format/edn
-* TJSON
-* JSON Schema
-* Toml
-* YAML
-* Ion https://amzn.github.io/ion-docs/
-* ...?
+FRED has a mechanism of extension inspired by XML. But differently from XML it 
+has the goal of being a data-exchange format not a markup language. 
+Also, it will have a schema format.
 
 ## Grammar
 
